@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:Reverie/Reverie.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:DependencyCreator">
+   </FileRef>
+   <FileRef
+      location = "group:Presentation">
+   </FileRef>
+   <FileRef
+      location = "group:Domain">
+   </FileRef>
+   <FileRef
+      location = "group:Data">
+   </FileRef>
+   <Group
+      location = "container:"
+      name = "Packages">
+      <FileRef
+         location = "group:PackageExample">
+      </FileRef>
+   </Group>
+</Workspace>
