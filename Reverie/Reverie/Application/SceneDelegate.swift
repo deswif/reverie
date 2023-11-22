@@ -15,15 +15,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { fatalError() }
+        guard let windowScene = (scene as? UIWindowScene) else { fatalError() }
+        guard let dependencyContainer = appDelegate.dependencyContainer else { fatalError() }
+        
+        let appFlowController = AppFlowController(
+            context: .init(
+                authRepository: dependencyContainer.authRepository
+            )
+        )
+        
         let window = UIWindow(windowScene: windowScene)
-        
-        let hi = DC.createDomain()
-        hi.render()
-        
-        let vc = AppFlowController(dependencies: .init())
-        
-        window.rootViewController = vc
+        window.rootViewController = appFlowController
         window.makeKeyAndVisible()
         
         self.window = window

@@ -14,7 +14,11 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../Domain")
+        .package(path: "../Domain"),
+        .package(
+            url: "https://github.com/firebase/firebase-ios-sdk.git",
+            .upToNextMajor(from: "10.4.0")
+        ),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -22,7 +26,8 @@ let package = Package(
         .target(
             name: "Data",
             dependencies: [
-                .product(name: "Domain", package: "Domain")
+                .product(name: "Domain", package: "Domain"),
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
             ]
         ),
     ]

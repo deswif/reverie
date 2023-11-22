@@ -7,13 +7,13 @@
 
 import UIKit
 
-public class FlowController<Dependencies>: UIViewController {
+public class FlowController<Context>: UIViewController {
     
-    var depencencies: Dependencies
+    var context: Context
     var embeddedNavigation: UINavigationController?
 
-    public init(dependencies: Dependencies) {
-        self.depencencies = dependencies
+    public init(context: Context) {
+        self.context = context
         super.init(nibName: nil, bundle: nil)
     }
     

@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import Domain
 
-class AuthFlowController: FlowController<AuthFlowController.Dependencies> {
+class AuthFlowController: FlowController<AuthFlowController.Context> {
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -24,13 +25,25 @@ class AuthFlowController: FlowController<AuthFlowController.Dependencies> {
     
     private func makeSignInController() -> SignInViewController {
         let controller = SignInViewController()
+        let presenter = SignInPresenter(
+            signInUseCase: SignInUseCase(
+                authRepository: context.authRepository
+            )
+        )
+        controller.presenter = presenter
         
         return controller
     }
 }
 
 extension AuthFlowController {
-    struct Dependencies {
+    struct Context {
+        let authRepository: AuthRepository
         
+        init(
+            authRepository: AuthRepository
+        ) {
+            self.authRepository = authRepository
+        }
     }
 }

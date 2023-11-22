@@ -14,7 +14,8 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "../Domain")
+        .package(path: "../Domain"),
+        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.0.1")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -22,7 +23,8 @@ let package = Package(
         .target(
             name: "Presentation",
             dependencies: [
-                .product(name: "Domain", package: "Domain")
+                .product(name: "Domain", package: "Domain"),
+                .product(name: "SnapKit", package: "SnapKit")
             ]
         ),
     ]

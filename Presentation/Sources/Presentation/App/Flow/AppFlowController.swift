@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import Domain
 
-public class AppFlowController: FlowController<AppFlowController.Dependencies> {
+public class AppFlowController: FlowController<AppFlowController.Context> {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,7 +18,9 @@ public class AppFlowController: FlowController<AppFlowController.Dependencies> {
     
     private func startAuth() {
         let flow = AuthFlowController(
-            dependencies: .init()
+            context: .init(
+                authRepository: context.authRepository
+            )
         )
         
         add(child: flow)
@@ -25,9 +28,13 @@ public class AppFlowController: FlowController<AppFlowController.Dependencies> {
 }
 
 public extension AppFlowController {
-    struct Dependencies {
-        public init() {
-            
+    struct Context {
+        let authRepository: AuthRepository
+        
+        public init(
+            authRepository: AuthRepository
+        ) {
+            self.authRepository = authRepository
         }
     }
 }
