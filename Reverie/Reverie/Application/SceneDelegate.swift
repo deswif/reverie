@@ -7,6 +7,7 @@
 
 import UIKit
 import DependencyCreator
+import Presentation
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -20,7 +21,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let hi = DC.createDomain()
         hi.render()
         
-        window.rootViewController = UINavigationController(rootViewController: ViewController())
+        let vc = AppFlowController(dependencies: .init())
+        
+        window.rootViewController = vc
         window.makeKeyAndVisible()
         
         self.window = window
