@@ -14,7 +14,7 @@ import FirebaseAuth
 public class CommonAuthRepository: AuthRepository {
     
     public init() {
-        FirebaseApp.configure()
+        FirebaseApp.configureIfNot()
     }
     
     private var currentNonce: String?
@@ -41,8 +41,8 @@ public class CommonAuthRepository: AuthRepository {
     }
 }
 
-extension CommonAuthRepository {
-    private func randomNonceString(length: Int = 32) -> String {
+fileprivate extension CommonAuthRepository {
+    func randomNonceString(length: Int = 32) -> String {
         precondition(length > 0)
         var randomBytes = [UInt8](repeating: 0, count: length)
         let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
@@ -61,7 +61,7 @@ extension CommonAuthRepository {
         return String(nonce)
     }
     
-    private func sha256(_ input: String) -> String {
+    func sha256(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashedData = SHA256.hash(data: inputData)
         let hashString = hashedData.compactMap {
@@ -72,11 +72,11 @@ extension CommonAuthRepository {
     }
 }
 
-class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
-    var completion: ((Result<String, Error>) -> Void)?
-    var currentNonce: String?
+fileprivate class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
+    fileprivate var completion: ((Result<String, Error>) -> Void)?
+    fileprivate var currentNonce: String?
     
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    fileprivate func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             guard let nonce = currentNonce else {
                 print("Invalid state: A login callback was received, but no login request was sent.")
@@ -119,7 +119,7 @@ class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
         }
     }
     
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    fileprivate func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         completion?(.failure(error))
     }
 }
