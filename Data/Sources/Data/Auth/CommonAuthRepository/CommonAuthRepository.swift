@@ -10,6 +10,8 @@ import CryptoKit
 import AuthenticationServices
 import FirebaseCore
 import FirebaseAuth
+import RxSwift
+import Promises
 
 public class CommonAuthRepository: AuthRepository {
     
@@ -21,23 +23,58 @@ public class CommonAuthRepository: AuthRepository {
     
     private let delegate = AppleSignInDelegate()
     
-    public func signIn(completion: @escaping (Result<String, Error>) -> Void) {
-        
-        let nonce = randomNonceString()
-        currentNonce = nonce
-        
-        let appleIDProvider = ASAuthorizationAppleIDProvider()
-        
-        let request = appleIDProvider.createRequest()
-        request.requestedScopes = [.fullName, .email]
-        request.nonce = sha256(nonce)
-        
-        delegate.completion = completion
-        delegate.currentNonce = currentNonce
-        
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = delegate
-        authorizationController.performRequests()
+    public var currentId: String? { Auth.auth().currentUser?.uid }
+    
+    public var idObservable: Observable<String?> {
+        Observable<String?>.create { observer in
+            let listener = Auth.auth().addStateDidChangeListener { _, user in
+                observer.onNext(user?.uid)
+            }
+            
+            return Disposables.create {
+                Auth.auth().removeStateDidChangeListener(listener)
+            }
+        }
+    }
+    
+    public func signIn() -> Promise<String> {
+        Promise<String> { [weak self] fulfill, reject in
+            guard let self else { return reject(ASAuthorizationError(.failed)) }
+            
+            let nonce = randomNonceString()
+            currentNonce = nonce
+            
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            
+            let request = appleIDProvider.createRequest()
+            request.requestedScopes = [.fullName, .email]
+            request.nonce = sha256(nonce)
+            
+            delegate.completion = { result in
+                switch result {
+                case .success(let id):
+                    fulfill(id)
+                case .failure(let error):
+                    reject(error)
+                }
+            }
+            delegate.currentNonce = currentNonce
+            
+            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+            authorizationController.delegate = delegate
+            authorizationController.performRequests()
+        }
+    }
+    
+    public func signOut() -> Promise<Void> {
+        Promise<Void> { fulfill, reject in
+            do {
+                try Auth.auth().signOut()
+                fulfill(())
+            } catch (let error) {
+                reject(error)
+            }
+        }
     }
 }
 
@@ -54,7 +91,6 @@ fileprivate extension CommonAuthRepository {
         Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         
         let nonce = randomBytes.map { byte in
-            // Pick a random character from the set, wrapping around if needed.
             charset[Int(byte) % charset.count]
         }
         
@@ -73,10 +109,12 @@ fileprivate extension CommonAuthRepository {
 }
 
 fileprivate class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
+    
     fileprivate var completion: ((Result<String, Error>) -> Void)?
     fileprivate var currentNonce: String?
     
     fileprivate func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             guard let nonce = currentNonce else {
                 print("Invalid state: A login callback was received, but no login request was sent.")

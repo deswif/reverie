@@ -1,24 +1,17 @@
 //
-//  SignInViewController.swift
+//  File.swift
 //  
 //
-//  Created by Max Steshkin on 22.11.2023.
+//  Created by Max Steshkin on 23.11.2023.
 //
 
 import UIKit
-import SnapKit
+import Domain
 
-class SignInViewController: UIViewController {
-    
-    var presenter: SignInPresenter? {
-        didSet {
-            presenter?.setViewDelegate(self)
-        }
-    }
-    
+class HomeFlowController: FlowController<HomeFlowController.Context> {
     private let button: UIButton = {
         let view = UIButton(type: .system)
-        view.setTitle("Sign In", for: .normal)
+        view.setTitle("log out", for: .normal)
         view.titleLabel?.font = .systemFont(ofSize: 21)
         view.backgroundColor = .white
         view.layer.cornerRadius = 10
@@ -31,7 +24,7 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .black
+        view.backgroundColor = .darkGray 
         
         setUpViews()
     }
@@ -44,7 +37,9 @@ class SignInViewController: UIViewController {
     
     func configureSignInButton() {
         let action = UIAction { [weak self] _ in
-            self?.presenter?.signInPressed()
+            self?.context.authRepository.signOut().then { _ in
+                print("log out success")
+            }
         }
         
         button.addAction(action, for: .touchUpInside)
@@ -55,20 +50,10 @@ class SignInViewController: UIViewController {
             make.centerX.equalToSuperview()
         }
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
 
-extension SignInViewController: SignInViewDelegate {
-    
+extension HomeFlowController {
+    struct Context {
+        let authRepository: AuthRepository
+    }
 }

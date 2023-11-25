@@ -21,7 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let appFlowController = AppFlowController(
             context: .init(
-                authRepository: dependencyContainer.authRepository
+                authRepository: dependencyContainer.authRepository,
+                userRepository: dependencyContainer.userRepository
             )
         )
         

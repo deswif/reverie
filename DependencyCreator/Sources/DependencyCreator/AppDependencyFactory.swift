@@ -11,14 +11,20 @@ public class AppDependencyFactory {
     private init() {}
     
     public static func createProd() -> AppDependencyContainer {
-        AppDependencyContainer(
-            authRepository: CommonAuthRepository()
+        let userRemoteDataSource: UserRemoteDataSource = FirebaseUserRemoteDataSource()
+        
+        return AppDependencyContainer(
+            authRepository: CommonAuthRepository(),
+            userRepository: CommonUserRepository(remoteDataSource: userRemoteDataSource)
         )
     }
     
     public static func createDev() -> AppDependencyContainer {
-        AppDependencyContainer(
-            authRepository: CommonAuthRepository()
+        let userRemoteDataSource: UserRemoteDataSource = FirebaseUserRemoteDataSource()
+        
+        return AppDependencyContainer(
+            authRepository: CommonAuthRepository(),
+            userRepository: CommonUserRepository(remoteDataSource: userRemoteDataSource)
         )
     }
 }

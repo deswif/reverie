@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Max Steshkin on 22.11.2023.
 //
@@ -8,7 +8,10 @@
 import Domain
 import Foundation
 
-protocol SignInViewDelegate: NSObjectProtocol {}
+protocol SignInViewDelegate: NSObjectProtocol {
+    
+    func didAuthenticated(with user: User?)
+}
 
 class SignInPresenter {
     private let signInUseCase: SignInUseCase
@@ -24,14 +27,13 @@ class SignInPresenter {
     }
     
     func signInPressed() {
-        signInUseCase.call { result in
-            switch result {
-            case .success(let id):
-                print(id)
-            case .failure(let failure):
-                print(failure)
+        signInUseCase.call()
+            .then(on: DispatchQueue.main) { [weak self] user in
+                self?.signInViewDelegate?.didAuthenticated(with: user)
             }
-        }
+            .catch { error in
+                print(error)
+            }
     }
 }
 
